@@ -46,7 +46,6 @@ if (WITH_GFLAGS)
     add_definitions(-DS2_USE_GFLAGS)
 endif()
 
-find_package(OpenSSL REQUIRED)
 # pthreads isn't used directly, but this is still required for std::thread.
 find_package(Threads REQUIRED)
 find_package(SWIG)
@@ -76,9 +75,12 @@ endif()
 # something like:
 # OPENSSL_ROOT_DIR=/usr/local/opt/openssl cmake ..
 include_directories(
-    ${GFLAGS_INCLUDE_DIRS} ${GLOG_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR}
+    ${GFLAGS_INCLUDE_DIRS} ${GLOG_INCLUDE_DIRS}
     ${PYTHON_INCLUDE_DIRS})
 include_directories(src)
+
+# Vendorized BoringSSL Bignum
+add_subdirectory(third_party/bignum)
 
 add_library(s2
             src/s2/base/stringprintf.cc
@@ -189,7 +191,7 @@ add_library(s2testing STATIC
             src/s2/s2testing.cc)
 target_link_libraries(
     s2
-    ${GFLAGS_LIBRARIES} ${GLOG_LIBRARIES} ${OPENSSL_LIBRARIES}
+    ${GFLAGS_LIBRARIES} ${GLOG_LIBRARIES} bignum
     ${CMAKE_THREAD_LIBS_INIT})
 
 # Allow other CMake projects to use this one with:
